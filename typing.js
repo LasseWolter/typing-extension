@@ -1,7 +1,52 @@
-const videoContainer = document.querySelector(".html5-video-container");
-const placeholderText = 'Enable captions to see text here...'
+var videoContainer = document.querySelector(".html5-video-container");
+var placeholderText = 'Enable captions to see text here...'
+var captions;
 
-const text = [];
+function decodeUnicodeEscapeSequence(str) {
+	return str.replace(/\\u/g, '%u').replace(/(%u)([a-fA-F\d]{4})/ig, function(_, _, hex) {
+		return String.fromCharCode(parseInt(hex, 16));
+	});
+}
+
+// fetch auto captions from youtube 
+async function fetchCaptionUrl() {
+	const response = await fetch('https://www.youtube.com/watch?v=UrxkO4DM67M');
+	rawHtml = await response.text();
+
+	let matches = rawHtml.match(new RegExp('(?<=captionTracks.*baseUrl":")[^"]+"', 'g'));
+
+	if (!matches) {
+		return;
+	}
+	var decodedString = decodeUnicodeEscapeSequence(matches[0].replace('"', ''));
+	return decodedString;
+}
+
+async function fectchCaptions() {
+
+	const url = await fetchCaptionUrl();
+	const response = await fetch(url);
+	rawXml = await response.text();
+	var textContents = parseXML(rawXml);
+	captions = textContents;
+	return textContents;
+}
+
+function parseXML(xmlStr) {
+	// Create a new DOMParser object
+	var parser = new DOMParser();
+
+	// Parse the XML string into a DOM Document
+	var doc = parser.parseFromString(xmlStr, "application/xml");
+
+	// Find all <text> elements in the document
+	var texts = Array.from(doc.querySelectorAll("text"));
+
+	// Extract the text content of each <text> element and store it in an array
+	var textContents = texts.map(textElement => textElement.textContent.trim());
+
+	return textContents;
+}
 
 
 // `document.querySelector` may return null if the selector doesn't match anything.
@@ -21,33 +66,50 @@ if (videoContainer) {
 	columns.insertAdjacentElement("beforeBegin", badge);
 }
 
-const badge = document.getElementById("badgyBadge");
+var badge = document.getElementById("badgyBadge");
 
-
-setInterval(function() {
+var textSoFarArr = [];
+function textSoFar() {
 	// Code to update the UI goes here
 	let segments = document.querySelectorAll(".ytp-caption-segment");
 	let textArr = Array.from(segments).map(x => x.innerText);
-	if (text.slice(-5).includes(textArr[-1])) {
+	if (textSoFarArr.slice(-5).includes(textArr[-1])) {
 		return;
 	}
 	outerLoop: for (let t of textArr.splice(-1)) {
-		for (let existingText of text.slice(-5)) {
+		for (let existingText of textSoFarArr.slice(-5)) {
 			if (t.startsWith(existingText)) {
-				text.pop();
-				text.push(t);
+				textSoFarArr.pop();
+				textSoFarArr.push(t);
 				continue outerLoop;
 			}
 		}
-		text.push(t)
+		textSoFarArr.push(t)
 	}
-	let idx = Math.min(text.length, 10)
+	let idx = Math.min(textSoFarArr.length, 10)
 
+	return textSoFarArr.slice(-idx).join('\n');
+}
+
+
+var speed = 10;
+
+let counter = 0;
+let idx = 0;
+let text = ''
+fectchCaptions()
+
+setInterval(function() {
+	counter++;
+	if (counter % speed === 0) {
+		text = text + '\n' + captions[idx];
+		idx++;
+	}
 
 	if (idx === 0) {
 		badge.innerText = placeholderText;
 	}
 	else {
-		badge.innerText = text.slice(-idx).join('\n');
+		badge.innerText = text;
 	}
 }, 100); // 1000 milliseconds = 1 second
