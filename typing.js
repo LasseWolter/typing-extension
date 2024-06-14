@@ -9,7 +9,7 @@ function decodeUnicodeEscapeSequence(str) {
 }
 
 // fetch auto captions from youtube 
-async function fetchCaptionUrl() {
+async function getCaptionUrl() {
 	const response = await fetch('https://www.youtube.com/watch?v=UrxkO4DM67M');
 	rawHtml = await response.text();
 
@@ -18,13 +18,14 @@ async function fetchCaptionUrl() {
 	if (!matches) {
 		return;
 	}
-	var decodedString = decodeUnicodeEscapeSequence(matches[0].replace('"', ''));
-	return decodedString;
+	var decodedUrl = decodeUnicodeEscapeSequence(matches[0].replace('"', ''));
+	return decodedUrl;
 }
 
 async function fectchCaptions() {
 
-	const url = await fetchCaptionUrl();
+	const url = await getCaptionUrl();
+	console.log(url);
 	const response = await fetch(url);
 	rawXml = await response.text();
 	var textContents = parseXML(rawXml);
