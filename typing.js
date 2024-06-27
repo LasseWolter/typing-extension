@@ -1,3 +1,11 @@
+// ================== CONFIGS ================== 
+// Will load offlineFile (specified below) from disk instead of trying to fetch it from the internet
+const offline = true;
+const offlineFile = "sample/caption.xml";
+
+// ================== CONFIGS END ================== 
+
+
 var videoContainer = document.querySelector(".html5-video-container");
 var placeholderText = 'Enable captions to see text here...'
 var captions;
@@ -22,6 +30,16 @@ async function getCaptionUrl() {
 	return decodedUrl;
 }
 
+async function fetchCaptionsFromFile() {
+	console.log("Reading captions from file.");
+	var response = await fetch(chrome.runtime.getURL(offlineFile));
+	rawXml = await response.text();
+	var textContents = parseXML(rawXml);
+	captions = textContents;
+	console.log(`No of Captions: ${captions.length}`);
+	return textContents;
+}
+
 async function fectchCaptions() {
 
 	const url = await getCaptionUrl();
@@ -30,6 +48,7 @@ async function fectchCaptions() {
 	rawXml = await response.text();
 	var textContents = parseXML(rawXml);
 	captions = textContents;
+	console.log(`No of Captions: ${captions.length}`);
 	return textContents;
 }
 
@@ -62,9 +81,15 @@ if (videoContainer) {
 	badge.style.margin = '10px';
 	badge.style.padding = '20px';
 
-	let columns = document.getElementById('columns');
+	let el = document.getElementById('columns');
+	if (el) {
+		el.insertAdjacentElement("beforeBegin", badge);
+	}
+	else {
+		console.log("Couldn't the columns element.")
+	}
 
-	columns.insertAdjacentElement("beforeBegin", badge);
+
 }
 
 var badge = document.getElementById("badgyBadge");
@@ -97,11 +122,23 @@ var speed = 10;
 
 let counter = 0;
 let idx = 0;
-let text = ''
-fectchCaptions()
+let text = '';
 
-setInterval(function() {
+if (offline) {
+	console.log("OFFLINE MODE");
+	fetchCaptionsFromFile();
+}
+else {
+	fectchCaptions();
+}
+
+
+var intervalID = setInterval(function() {
 	counter++;
+	if (!captions || idx == captions.length - 1) {
+		console.log("Reached end of the file");
+		clearInterval(intervalID);
+	}
 	if (counter % speed === 0) {
 		text = text + '\n' + captions[idx];
 		idx++;

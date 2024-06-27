@@ -3,6 +3,17 @@
 	"name": "Typing Extension",
 	"description": "Practise your typing by typing the captions of any youtube video.",
 	"version": "1.0",
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"sample/caption.xml",
+				"sample/short_caption.xml"
+			],
+			"matches": [
+				"https://www.youtube.com/*"
+			]
+		}
+	],
 	"icons": {
 		"16": "images/icon-16.png",
 		"32": "images/icon-32.png",
