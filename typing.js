@@ -10,7 +10,7 @@ function decodeUnicodeEscapeSequence(str) {
 
 // fetch auto captions from youtube 
 async function getCaptionUrl() {
-	const response = await fetch('https://www.youtube.com/watch?v=UrxkO4DM67M');
+	const response = await fetch(window.location);
 	rawHtml = await response.text();
 
 	let matches = rawHtml.match(new RegExp('(?<=captionTracks.*baseUrl":")[^"]+"', 'g'));
