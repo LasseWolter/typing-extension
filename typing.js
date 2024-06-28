@@ -74,22 +74,18 @@ if (videoContainer) {
 	const badge = document.createElement("div");
 	// Use the same styling as the publish information in an article's header
 	badge.id = "badgyBadge";
-	badge.classList.add("color-secondary-text", "type--caption");
 	badge.textContent = placeholderText;
 	badge.style.background = '#d794d7';
 	badge.style.fontSize = '18px';
 	badge.style.margin = '10px';
+	badge.style.width = '100vw';
 	badge.style.padding = '20px';
+	badge.style.position = 'absolute';
+	badge.style.top = '10px';
+	badge.style.zIndex = 99999999;
+	badge.style.borderRadius = "5px";
 
-	let el = document.getElementById('columns');
-	if (el) {
-		el.insertAdjacentElement("beforeBegin", badge);
-	}
-	else {
-		console.log("Couldn't the columns element.")
-	}
-
-
+	document.body.insertBefore(badge, document.body.firstChild);
 }
 
 var badge = document.getElementById("badgyBadge");
