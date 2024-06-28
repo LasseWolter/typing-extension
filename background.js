@@ -25,9 +25,18 @@ chrome.action.onClicked.addListener(async (tab) => {
     }
     else {
       (async () => {
-        const response = await chrome.tabs.sendMessage(tab.id, { state: nextState });
-        // do something with response here, not outside the function
-        // console.log(response);
+        try {
+          await chrome.tabs.sendMessage(tab.id, { state: nextState });
+        }
+        catch (e) {
+          // TODO: Find a cleaner way to handle this (possibly you could catch the certain error type?)
+          console.log(`Message passing failed due to error: ${e}`);
+          console.log("Re-injecting content script...");
+          await chrome.scripting.executeScript({
+            files: ["typing.js"],
+            target: { tabId: tab.id },
+          });
+        }
       })();
     }
   }
