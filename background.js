@@ -1,4 +1,5 @@
 const youtube = "https://www.youtube.com";
+let enabledFirstTime = true;
 
 chrome.action.onClicked.addListener(async (tab) => {
   if (tab.url.startsWith(youtube)) {
@@ -12,10 +13,22 @@ chrome.action.onClicked.addListener(async (tab) => {
       tabId: tab.id,
       text: nextState,
     });
-    // Insert the CSS file when the user turns the extension on
-    await chrome.scripting.executeScript({
-      files: ["typing.js"],
-      target: { tabId: tab.id },
-    });
+
+    // Only insert once
+    if (enabledFirstTime) {
+      enabledFirstTime = false;
+      // Insert the CSS file when the user turns the extension on
+      await chrome.scripting.executeScript({
+        files: ["typing.js"],
+        target: { tabId: tab.id },
+      });
+    }
+    else {
+      (async () => {
+        const response = await chrome.tabs.sendMessage(tab.id, { state: nextState });
+        // do something with response here, not outside the function
+        // console.log(response);
+      })();
+    }
   }
 });

@@ -4,34 +4,33 @@ const offline = true;
 const offlineFile = "sample/caption.xml";
 // ================== CONFIGS END ==================
 
+// ================== VAR SETUP ==================
+let running = true;
 const placeholderText = "Enable captions to see text here...";
 let captions;
-
 let textSoFarArr = [];
 
-addCaptionBox();
-if (offline) {
-  console.log("OFFLINE MODE");
-  fetchCaptionsFromFile();
-} else {
-  fectchCaptions();
-}
-
 const speed = 10;
-const badge = document.getElementById("badgyBadge");
-
 let counter = 0;
 let idx = 0;
 let text = "";
 
+// ================== MAIN ==================
+setup();
+const badge = document.getElementById("badgyBadge");
+
+// Constant UI update loop
 var intervalID = setInterval(function() {
   counter++;
+  if (!running) {
+    return;
+  }
   if (!captions || idx == captions.length - 1) {
     console.log("Reached end of the file");
     clearInterval(intervalID);
   }
   if (counter % speed === 0) {
-    text = text + "\n" + captions[idx];
+    text = text + captions[idx] + "\n";
     idx++;
   }
 
@@ -41,6 +40,35 @@ var intervalID = setInterval(function() {
     badge.innerText = text;
   }
 }, 100); // 1000 milliseconds = 1 second
+
+// Allows starting and stopping the captions from service worker  
+chrome.runtime.onMessage.addListener(
+  function(request, _, _) {
+    if (request.state) {
+      if (request.state === "ON") {
+        running = true
+      }
+      else if (request.state === "OFF") {
+        running = false
+      }
+      else {
+        throw `Invalid state. ${request.state} is not a valid state.`;
+      }
+    }
+  }
+);
+
+// ================== FUNCTIONS ==================
+function setup() {
+  addCaptionBox();
+
+  if (offline) {
+    console.log("OFFLINE MODE");
+    fetchCaptionsFromFile();
+  } else {
+    fectchCaptions();
+  }
+}
 
 function addCaptionBox() {
   const badge = document.createElement("div");
