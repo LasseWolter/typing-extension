@@ -2,6 +2,8 @@
 // Will load offlineFile (specified below) from disk instead of trying to fetch it from the internet
 const offline = true;
 const offlineFile = "sample/caption.xml";
+const speed = 10;
+const maxLinesToDisplay = 3;
 // ================== CONFIGS END ==================
 
 // ================== VAR SETUP ==================
@@ -10,10 +12,10 @@ const placeholderText = "Enable captions to see text here...";
 let captions;
 let textSoFarArr = [];
 
-const speed = 10;
 let counter = 0;
 let idx = 0;
 let text = "";
+let textArr = []
 
 // ================== MAIN ==================
 setup();
@@ -30,7 +32,11 @@ var intervalID = setInterval(function() {
     clearInterval(intervalID);
   }
   if (counter % speed === 0) {
-    text = text + captions[idx] + "\n";
+    textArr.push(captions[idx]);
+    if (textArr.length > maxLinesToDisplay) {
+      textArr.shift();
+    }
+    text = textArr.join('\n');
     idx++;
   }
 
