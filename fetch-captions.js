@@ -18,10 +18,9 @@ async function fetchCaptionsFromFile() {
   console.log("Reading captions from file.");
   var response = await fetch(chrome.runtime.getURL(offlineFile));
   rawXml = await response.text();
-  var textContents = parseXML(rawXml);
-  captions = textContents;
+  var captions = parseXML(rawXml);
   console.log(`No of Captions: ${captions.length}`);
-  return textContents;
+  return captions;
 }
 
 async function fectchCaptions() {
@@ -29,9 +28,8 @@ async function fectchCaptions() {
   console.log(url);
   const response = await fetch(url);
   rawXml = await response.text();
-  var textContents = parseXML(rawXml);
-  captions = textContents;
+  var captions = parseXML(rawXml);
   console.log(`No of Captions: ${captions.length}`);
-  return textContents;
+  return captions;
 }
 
