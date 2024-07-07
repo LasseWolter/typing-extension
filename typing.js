@@ -11,7 +11,8 @@ let text = "";
 let textArr = []
 
 // ================== MAIN ==================
-addCaptionBox();
+document.body.insertBefore(createCaptionBox(), document.body.firstChild);
+const captionBox = document.getElementById("captionBox");
 
 if (offline) {
   console.log("OFFLINE MODE");
@@ -19,8 +20,6 @@ if (offline) {
 } else {
   fectchCaptions();
 }
-
-const badge = document.getElementById("badgyBadge");
 
 // Constant UI update loop
 var intervalID = setInterval(function() {
@@ -43,9 +42,9 @@ var intervalID = setInterval(function() {
   }
 
   if (idx === 0) {
-    badge.innerText = placeholderText;
+    captionBox.innerText = placeholderText;
   } else {
-    badge.innerText = text;
+    captionBox.innerText = text;
   }
 }, 1000 / fps); // 1000 milliseconds = 1 second
 
@@ -67,10 +66,10 @@ chrome.runtime.onMessage.addListener(
 );
 
 // ================== FUNCTIONS ==================
-function addCaptionBox() {
-  const badge = document.createElement("div");
+function createCaptionBox() {
+  let badge = document.createElement("div");
   // Use the same styling as the publish information in an article's header
-  badge.id = "badgyBadge";
+  badge.id = "captionBox";
   badge.textContent = placeholderText;
   badge.style.background = "#d794d7";
   badge.style.fontSize = "18px";
@@ -82,7 +81,7 @@ function addCaptionBox() {
   badge.style.zIndex = 99999999; // needs to higher than all other page elements
   badge.style.borderRadius = "5px";
 
-  document.body.insertBefore(badge, document.body.firstChild);
+  return badge;
 }
 
 function textSoFar() {
