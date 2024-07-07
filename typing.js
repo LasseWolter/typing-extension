@@ -2,13 +2,15 @@
 // Will load offlineFile (specified below) from disk instead of trying to fetch it from the internet
 const offline = true;
 const offlineFile = "sample/caption.xml";
-const speed = 10;
+const lineDisplayDuration = 2; // [in s] 
 const maxLinesToDisplay = 3;
+const fps = 10;
 // ================== CONFIGS END ==================
 
 // ================== VAR SETUP ==================
 let running = true;
-const placeholderText = "Enable captions to see text here...";
+const offlineText = offline ? "[OFFLINE]" : "";
+const placeholderText = offlineText + " Enable captions to see text here...";
 let captions;
 let textSoFarArr = [];
 
@@ -31,7 +33,8 @@ var intervalID = setInterval(function() {
     console.log("Reached end of the file");
     clearInterval(intervalID);
   }
-  if (counter % speed === 0) {
+  // Mutiply by fps to make display time independent of the framerate
+  if (counter % (lineDisplayDuration * fps) === 0) {
     textArr.push(captions[idx]);
     if (textArr.length > maxLinesToDisplay) {
       textArr.shift();
@@ -45,7 +48,7 @@ var intervalID = setInterval(function() {
   } else {
     badge.innerText = text;
   }
-}, 100); // 1000 milliseconds = 1 second
+}, 1000 / fps); // 1000 milliseconds = 1 second
 
 // Allows starting and stopping the captions from service worker  
 chrome.runtime.onMessage.addListener(
