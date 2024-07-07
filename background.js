@@ -19,7 +19,7 @@ chrome.action.onClicked.addListener(async (tab) => {
       enabledFirstTime = false;
       // Insert the CSS file when the user turns the extension on
       await chrome.scripting.executeScript({
-        files: ["typing.js"],
+        files: ["./config.js", "./utils.js", "./fetch-captions.js", "./typing.js"],
         target: { tabId: tab.id },
       });
     }

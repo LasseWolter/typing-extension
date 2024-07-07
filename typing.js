@@ -1,12 +1,3 @@
-// ================== CONFIGS ==================
-// Will load offlineFile (specified below) from disk instead of trying to fetch it from the internet
-const offline = true;
-const offlineFile = "sample/caption.xml";
-const lineDisplayDuration = 2; // [in s] 
-const maxLinesToDisplay = 3;
-const fps = 10;
-// ================== CONFIGS END ==================
-
 // ================== VAR SETUP ==================
 let running = true;
 const offlineText = offline ? "[OFFLINE]" : "";
@@ -20,7 +11,15 @@ let text = "";
 let textArr = []
 
 // ================== MAIN ==================
-setup();
+addCaptionBox();
+
+if (offline) {
+  console.log("OFFLINE MODE");
+  fetchCaptionsFromFile();
+} else {
+  fectchCaptions();
+}
+
 const badge = document.getElementById("badgyBadge");
 
 // Constant UI update loop
@@ -68,17 +67,6 @@ chrome.runtime.onMessage.addListener(
 );
 
 // ================== FUNCTIONS ==================
-function setup() {
-  addCaptionBox();
-
-  if (offline) {
-    console.log("OFFLINE MODE");
-    fetchCaptionsFromFile();
-  } else {
-    fectchCaptions();
-  }
-}
-
 function addCaptionBox() {
   const badge = document.createElement("div");
   // Use the same styling as the publish information in an article's header
@@ -95,67 +83,6 @@ function addCaptionBox() {
   badge.style.borderRadius = "5px";
 
   document.body.insertBefore(badge, document.body.firstChild);
-}
-
-function decodeUnicodeEscapeSequence(str) {
-  return str
-    .replace(/\\u/g, "%u")
-    .replace(/(%u)([a-fA-F\d]{4})/gi, function(_, _, hex) {
-      return String.fromCharCode(parseInt(hex, 16));
-    });
-}
-
-// fetch auto captions from youtube
-async function getCaptionUrl() {
-  const response = await fetch(window.location);
-  rawHtml = await response.text();
-
-  let matches = rawHtml.match(
-    new RegExp('(?<=captionTracks.*baseUrl":")[^"]+"', "g"),
-  );
-
-  if (!matches) {
-    return;
-  }
-  var decodedUrl = decodeUnicodeEscapeSequence(matches[0].replace('"', ""));
-  return decodedUrl;
-}
-
-async function fetchCaptionsFromFile() {
-  console.log("Reading captions from file.");
-  var response = await fetch(chrome.runtime.getURL(offlineFile));
-  rawXml = await response.text();
-  var textContents = parseXML(rawXml);
-  captions = textContents;
-  console.log(`No of Captions: ${captions.length}`);
-  return textContents;
-}
-
-async function fectchCaptions() {
-  const url = await getCaptionUrl();
-  console.log(url);
-  const response = await fetch(url);
-  rawXml = await response.text();
-  var textContents = parseXML(rawXml);
-  captions = textContents;
-  console.log(`No of Captions: ${captions.length}`);
-  return textContents;
-}
-
-function parseXML(xmlStr) {
-  // Create a new DOMParser object
-  var parser = new DOMParser();
-
-  // Parse the XML string into a DOM Document
-  var doc = parser.parseFromString(xmlStr, "application/xml");
-
-  // Find all <text> elements in the document
-  var texts = Array.from(doc.querySelectorAll("text"));
-
-  // Extract the text content of each <text> element and store it in an array
-  var textContents = texts.map((textElement) => textElement.textContent.trim());
-
-  return textContents;
 }
 
 function textSoFar() {
