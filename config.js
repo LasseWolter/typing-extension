@@ -4,4 +4,4 @@ const offlineFile = "sample/caption2.xml";
 const lineDisplayDuration = 4; // [in s] 
 const maxLinesToDisplay = -1; // -1 for not restriction 
 const fps = 10;
-const hideCaptionBox = false;
+const hideCaptionBox = true;
