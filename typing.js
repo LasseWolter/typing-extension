@@ -94,7 +94,9 @@ function createCaptionBox() {
   badge.style.top = "10px";
   badge.style.zIndex = 99999999; // needs to higher than all other page elements
   badge.style.borderRadius = "5px";
-  badge.style.display = 'none';
+  if (hideCaptionBox) {
+    badge.style.display = 'none';
+  }
 
   return badge;
 }
