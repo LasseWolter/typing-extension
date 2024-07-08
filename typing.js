@@ -94,6 +94,7 @@ function createCaptionBox() {
   badge.style.top = "10px";
   badge.style.zIndex = 99999999; // needs to higher than all other page elements
   badge.style.borderRadius = "5px";
+  badge.style.display = 'none';
 
   return badge;
 }
@@ -121,22 +122,38 @@ function updateTextSoFar(textSoFarArr) {
   // Code to update the UI goes here
   let segments = document.querySelectorAll(".ytp-caption-segment");
   let textArr = Array.from(segments).map((x) => x.innerText);
-  if (textSoFarArr.slice(-5).includes(textArr[-1])) {
-    return;
-  }
-  outerLoop: for (let t of textArr.splice(-1)) {
-    for (let existingText of textSoFarArr.slice(-5)) {
-      if (t.startsWith(existingText)) {
-        textSoFarArr.pop();
-        textSoFarArr.push(t);
-        continue outerLoop;
+
+  if (textArr) {
+    if (textArr.length > textSoFarArr) {
+      for (let line of textArr) {
+        textSoFarArr.push(line);
       }
+      return;
     }
-    textSoFarArr.push(t);
+
+    // This approach checks if the current line in view is already being displayed. 
+    // - If yes, we need to update the current line
+    // - If no, we need to add a new line
+
+    // This still allows for mutliple lines with the same text following each other
+    // This is because we use .startsWith which will be false for a new line because the last line so far will
+    // be longer than the current text in view. 
+    lastLineInView = textArr[textArr.length - 1];
+    lastLineSoFar = textSoFarArr[textSoFarArr.length - 1];
+    if (lastLineInView.startsWith(lastLineSoFar)) {
+      textSoFarArr[textSoFarArr.length - 1] = lastLineInView;
+    }
+    else {
+      textSoFarArr.push(lastLineInView)
+    }
   }
 }
 
+
 function textSoFarToString(textSoFarArr) {
-  let idx = Math.min(textSoFarArr.length, 10);
+  if (maxLinesToDisplay === -1) {
+    return textSoFarArr.join("\n");
+  }
+  let idx = Math.min(textSoFarArr.length, maxLinesToDisplay);
   return textSoFarArr.slice(-idx).join("\n");
 }
