@@ -125,7 +125,7 @@ function updateTextSoFar(textSoFarArr) {
   let segments = document.querySelectorAll(".ytp-caption-segment");
   let textArr = Array.from(segments).map((x) => x.innerText);
 
-  if (textArr) {
+  if (textArr && textArr.length > 0) {
     if (textArr.length > textSoFarArr) {
       for (let line of textArr) {
         textSoFarArr.push(line);
