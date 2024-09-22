@@ -59,8 +59,10 @@ const liveCaptionBox = document.getElementById("liveCaptionBox");
 chrome.runtime.onMessage.addListener(function (request, _, _) {
   if (request.state) {
     if (request.state === "ON") {
+      console.log("RUNNING");
       running = true;
     } else if (request.state === "OFF") {
+      console.log("STOPPED");
       running = false;
     } else {
       throw `Invalid state. ${request.state} is not a valid state.`;
