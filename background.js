@@ -19,16 +19,19 @@ chrome.action.onClicked.addListener(async (tab) => {
       enabledFirstTime = false;
       // Insert the CSS file when the user turns the extension on
       await chrome.scripting.executeScript({
-        files: ["./config.js", "./utils.js", "./fetch-captions.js", "./typing.js"],
+        files: [
+          "./config.js",
+          "./utils.js",
+          "./fetch-captions.js",
+          "./typing.js",
+        ],
         target: { tabId: tab.id },
       });
-    }
-    else {
+    } else {
       (async () => {
         try {
           await chrome.tabs.sendMessage(tab.id, { state: nextState });
-        }
-        catch (e) {
+        } catch (e) {
           // TODO: Find a cleaner way to handle this (possibly you could catch the certain error type?)
           console.log(`Message passing failed due to error: ${e}`);
           console.log("Re-injecting content script...");
