@@ -11,10 +11,13 @@ let text = "";
 let textArr = [];
 
 // ================== MAIN ==================
-document.body.insertBefore(createCaptionBox(), document.body.firstChild);
+document.body.insertBefore(
+  createGeneratedCaptionBox(),
+  document.body.firstChild,
+);
 const captionBox = document.getElementById("captionBox");
 
-document.body.insertBefore(createCaptionBox2(), document.body.firstChild);
+document.body.insertBefore(createLiveCaptionBox(), document.body.firstChild);
 const liveCaptionBox = document.getElementById("liveCaptionBox");
 
 (async (offline, captions) => {
@@ -71,7 +74,7 @@ chrome.runtime.onMessage.addListener(function (request, _, _) {
 });
 
 // ================== FUNCTIONS ==================
-function createCaptionBox() {
+function createGeneratedCaptionBox() {
   let badge = document.createElement("div");
   // Use the same styling as the publish information in an article's header
   badge.id = "captionBox";
@@ -92,7 +95,7 @@ function createCaptionBox() {
   return badge;
 }
 
-function createCaptionBox2() {
+function createLiveCaptionBox() {
   let badge = document.createElement("div");
   // Use the same styling as the publish information in an article's header
   badge.id = "liveCaptionBox";
