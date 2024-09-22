@@ -32,4 +32,3 @@ async function fectchCaptions() {
   console.log(`No of Captions: ${captions.length}`);
   return captions;
 }
-
