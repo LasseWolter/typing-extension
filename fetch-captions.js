@@ -14,21 +14,20 @@ async function getCaptionUrl() {
   return decodedUrl;
 }
 
-async function fetchCaptionsFromFile() {
-  console.log("Reading captions from file.");
-  var response = await fetch(chrome.runtime.getURL(offlineFile));
-  rawXml = await response.text();
-  var captions = parseXML(rawXml);
-  console.log(`No of Captions: ${captions.length}`);
-  return captions;
-}
+async function fectchCaptions(offline) {
+  let response;
+  if (offline) {
+    console.log(`Reading captions from file: ${offlineFile}`);
+    response = await fetch(chrome.runtime.getURL(offlineFile));
+  } else {
+    console.log(`Fetching captions from url: ${url}`);
+    const url = await getCaptionUrl();
+    response = await fetch(url);
+  }
 
-async function fectchCaptions() {
-  const url = await getCaptionUrl();
-  console.log(url);
-  const response = await fetch(url);
   rawXml = await response.text();
   var captions = parseXML(rawXml);
+  captions = captions.map((c) => unescapeHtmlString(c));
   console.log(`No of Captions: ${captions.length}`);
   return captions;
 }
