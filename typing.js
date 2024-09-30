@@ -1,12 +1,14 @@
 // ================== VAR SETUP ==================
 let running = true;
+let waitingForVideoToStartFromStart = true;
+
 const offlineText = offline ? "[OFFLINE]" : "";
 const placeholderText = offlineText + " Enable captions to see text here...";
 let captions = [];
 let textSoFar = [];
 
 let counter = 0;
-let idx = 0;
+let curLine = 0;
 let text = "";
 let textArr = [];
 
@@ -20,8 +22,12 @@ const captionBox = document.getElementById("captionBox");
 document.body.insertBefore(createLiveCaptionBox(), document.body.firstChild);
 const liveCaptionBox = document.getElementById("liveCaptionBox");
 
-(async (offline, captions) => {
-  captions = await fectchCaptions(offline);
+(async (offline, fetchedCaptions) => {
+  fetchedCaptions = await fectchCaptions(offline);
+  textArr.push(fetchedCaptions[curLine]);
+  let lineToType = fetchedCaptions[curLine];
+  let lineToTypeAsList = fetchedCaptions[curLine].split(" ");
+  let tsfLineAsList = [];
 
   // Constant UI update loop
   var intervalID = setInterval(function () {
@@ -29,31 +35,56 @@ const liveCaptionBox = document.getElementById("liveCaptionBox");
     if (!running) {
       return;
     }
-    if (!captions || idx == captions.length - 1) {
+    if (!fetchedCaptions || curLine == fetchedCaptions.length) {
       console.log("Reached end of the file");
       clearInterval(intervalID);
     }
-    // Mutiply by fps to make display time independent of the framerate
-    if (counter % (lineDisplayDuration * fps) === 0) {
-      textArr.push(captions[idx]);
-      if (maxLinesToDisplay !== -1 && textArr.length > maxLinesToDisplay) {
-        textArr.shift();
+    console.log("live: " + tsfLineAsList);
+    console.log("typingLine: " + lineToTypeAsList);
+    if (tsfLineAsList.length != 0) {
+      if (
+        tsfLineAsList[tsfLineAsList.length - 1] ==
+        lineToTypeAsList[lineToTypeAsList.length - 1]
+      ) {
+        curLine++;
+        lineToType = fetchedCaptions[curLine];
+        lineToTypeAsList = fetchedCaptions[curLine].split(" ");
+        textArr.push(lineToType);
+        if (maxLinesToDisplay !== -1 && textArr.length > maxLinesToDisplay) {
+          textArr.shift();
+        }
+        text = textArr.join("\n");
       }
-      text = textArr.join("\n");
-      idx++;
     }
 
-    if (idx === 0) {
+    if (curLine === 0) {
       captionBox.innerText = placeholderText;
     } else {
       captionBox.innerText = text;
     }
 
+    if (waitingForVideoToStartFromStart) {
+      // Clear live captions so far because video wasn't started from the beginning
+      textSoFar = [];
+    }
     updateTextSoFar(textSoFar);
+
     if (textSoFar.length === 0) {
       liveCaptionBox.innerText = placeholderText;
     } else {
-      liveCaptionBox.innerText = textSoFarToString(textSoFar);
+      let tsfString = textSoFarToString(textSoFar);
+
+      if (
+        waitingForVideoToStartFromStart &&
+        !lineToType.startsWith(tsfString)
+      ) {
+        liveCaptionBox.innerText =
+          "Please start the video from the very start with captions enabled";
+      } else {
+        waitingForVideoToStartFromStart = false;
+        liveCaptionBox.innerText = tsfString;
+        tsfLineAsList = textSoFar[curLine].split(" ");
+      }
     }
   }, 1000 / fps); // 1000 milliseconds = 1 second
 })(offline, captions);

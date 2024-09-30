@@ -1,0 +1,1 @@
+- [ ] Put config js in a const object only defined when not already existent - prevents errors when reinjecting the script
