@@ -20,8 +20,8 @@ async function fectchCaptions(offline) {
     console.log(`Reading captions from file: ${offlineFile}`);
     response = await fetch(chrome.runtime.getURL(offlineFile));
   } else {
-    console.log(`Fetching captions from url: ${url}`);
     const url = await getCaptionUrl();
+    console.log(`Fetching captions from url: ${url}`);
     response = await fetch(url);
   }
 
